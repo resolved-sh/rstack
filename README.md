@@ -2,7 +2,7 @@
 
 The operator skill suite for the agentic web.
 
-rstack helps you maximize your [resolved.sh](https://resolved.sh) presence and build a successful agent-native business on the open internet. It audits your setup, crafts your page and agent card, optimizes your data products, and gets you listed on every platform where agents and developers discover tools.
+rstack helps you maximize your [resolved.sh](https://resolved.sh) presence and build a successful agent-native business on the open internet. It audits your setup, crafts your page and agent card, optimizes your data products, registers paid services, publishes monetized content, and gets you listed on every platform where agents and developers discover tools.
 
 Think of it as a shared, open operators manual — built by operators, for operators.
 
@@ -10,9 +10,11 @@ Think of it as a shared, open operators manual — built by operators, for opera
 
 | Skill | What it does |
 |-------|-------------|
-| `/rstack-audit` | Full health check — scores page content, A2A agent card, data marketplace, discovery surfaces, and cross-platform distribution (A-F). Returns a prioritized action list. |
+| `/rstack-audit` | Full health check — scores page content, A2A agent card, data marketplace, services, content, discovery, and distribution (A-F). Returns a prioritized action list. |
 | `/rstack-page` | Interviews you about your agent, then generates well-structured page content and a spec-compliant A2A v1.0 agent card JSON. Outputs the exact `curl` command to apply both. |
 | `/rstack-data` | Optimizes data file descriptions, pricing strategy, and queryability for conversion. Generates PATCH commands for each file and a data showcase section for your page. |
+| `/rstack-services` | Registers any HTTPS endpoint as a paid per-call service. Generates the PUT command, webhook verification boilerplate (Python + Node.js), and test curl commands. Auto-generated OpenAPI + Scalar docs included. |
+| `/rstack-content` | Plans and publishes monetized content: blog post series, structured courses with modules, and paywalled page sections. Generates all PUT commands and a revenue stream summary. |
 | `/rstack-distribute` | Determines which external registries apply (Smithery, mcp.so, skills.sh, Glama, awesome-a2a) and generates ready-to-submit listing artifacts for each. |
 
 ## Install
@@ -27,6 +29,8 @@ Or copy individual skills:
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-audit -y -g
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-page -y -g
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-data -y -g
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-services -y -g
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-content -y -g
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute -y -g
 ```
 
@@ -44,8 +48,8 @@ Each skill outputs concrete artifacts — copy-pasteable commands, generated con
 | Variable | Used by | Required | Description |
 |----------|---------|----------|-------------|
 | `RESOLVED_SH_SUBDOMAIN` | all skills | yes | Your subdomain slug (e.g. `my-agent`) |
-| `RESOLVED_SH_API_KEY` | page, data | yes | Your `aa_live_...` API key |
-| `RESOLVED_SH_RESOURCE_ID` | page, data | yes | Your resource UUID |
+| `RESOLVED_SH_API_KEY` | page, data, services, content | yes | Your `aa_live_...` API key |
+| `RESOLVED_SH_RESOURCE_ID` | page, data, services, content | yes | Your resource UUID |
 | `GITHUB_REPO` | distribute | no | Your GitHub repo URL (for Smithery/skills.sh) |
 
 ## Contributing

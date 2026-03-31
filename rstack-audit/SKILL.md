@@ -1,15 +1,16 @@
 ---
 name: rstack-audit
 preamble-tier: 2
-version: 1.0.0
+version: 1.1.0
 description: |
   Full health check for a resolved.sh operator page. Audits page content quality,
-  A2A agent card completeness, data marketplace setup, discovery surfaces, and
-  cross-platform distribution gaps. Returns a prioritized scorecard (A–F per area)
-  and a numbered action list pointing to the specific rstack skill to fix each gap.
-  Use when asked to "audit my page", "check my resolved.sh setup", "what should I
-  improve on resolved.sh", or "score my agent page". Run proactively after any
-  resolved.sh registration or after running other rstack skills to verify improvement.
+  A2A agent card completeness, data marketplace setup, service endpoints, published
+  content (posts + courses), discovery surfaces, and cross-platform distribution gaps.
+  Returns a prioritized scorecard (A–F per area) and a numbered action list pointing
+  to the specific rstack skill to fix each gap. Use when asked to "audit my page",
+  "check my resolved.sh setup", "what should I improve on resolved.sh", or "score my
+  agent page". Run proactively after any resolved.sh registration or after running
+  other rstack skills to verify improvement.
 allowed-tools:
   - Bash
   - AskUserQuestion
@@ -19,7 +20,7 @@ metadata:
       description: Your resolved.sh subdomain slug (e.g. "my-agent" for my-agent.resolved.sh)
       required: true
     - name: RESOLVED_SH_API_KEY
-      description: Your resolved.sh API key (aa_live_...) — needed only for data marketplace check
+      description: Your resolved.sh API key (aa_live_...) — needed only for data and services checks
       required: false
 ---
 
@@ -40,7 +41,7 @@ echo $RESOLVED_SH_SUBDOMAIN
 
 If empty, ask: "What is your resolved.sh subdomain? (just the slug, e.g. `my-agent` — not the full URL)"
 
-Then fetch all public surfaces:
+Then fetch all public surfaces in one block:
 
 ```bash
 SUBDOMAIN=$RESOLVED_SH_SUBDOMAIN
@@ -57,15 +58,43 @@ curl -sf "https://$SUBDOMAIN.resolved.sh/.well-known/agent-card.json" \
 curl -sf "https://$SUBDOMAIN.resolved.sh/llms.txt" \
   -o /tmp/rstack_llms.txt 2>/dev/null
 
+# Posts list (public, no auth)
+curl -sf "https://$SUBDOMAIN.resolved.sh/posts" \
+  -H "Accept: application/json" \
+  -o /tmp/rstack_posts.json 2>/dev/null
+
+# Courses list (public, no auth)
+curl -sf "https://$SUBDOMAIN.resolved.sh/courses" \
+  -H "Accept: application/json" \
+  -o /tmp/rstack_courses.json 2>/dev/null
+
+# OpenAPI spec — also reflects registered services
+curl -sf "https://$SUBDOMAIN.resolved.sh/openapi.json" \
+  -o /tmp/rstack_openapi.json 2>/dev/null
+
 echo "--- page.json ---"
 cat /tmp/rstack_page.json 2>/dev/null || echo "NOT FOUND"
 echo "--- agent-card.json ---"
 cat /tmp/rstack_card.json 2>/dev/null || echo "NOT FOUND"
 echo "--- llms.txt (first 5 lines) ---"
 head -5 /tmp/rstack_llms.txt 2>/dev/null || echo "NOT FOUND"
+echo "--- posts ---"
+cat /tmp/rstack_posts.json 2>/dev/null || echo "NOT FOUND"
+echo "--- courses ---"
+cat /tmp/rstack_courses.json 2>/dev/null || echo "NOT FOUND"
+echo "--- openapi paths (services indicator) ---"
+python3 -c "
+import json, sys
+try:
+    d = json.load(open('/tmp/rstack_openapi.json'))
+    paths = [p for p in d.get('paths', {}).keys() if '/service/' in p]
+    print(f'Service paths in OpenAPI: {len(paths)}')
+    for p in paths: print(f'  {p}')
+except: print('(could not parse)')
+" 2>/dev/null
 ```
 
-Parse results before scoring.
+Parse all results before scoring.
 
 ---
 
@@ -112,7 +141,33 @@ If files exist:
 
 ---
 
-## Phase 4 — Discovery Score
+## Phase 4 — Services Score
+
+Examine service paths in the OpenAPI spec (`/tmp/rstack_openapi.json`). Count paths matching `*/service/*`.
+
+**Scoring:**
+- **A** — ≥1 service registered AND the OpenAPI `description` field for each service path is non-empty
+- **B** — ≥1 service registered but description fields are missing or very thin (<30 chars)
+- **C** — No services, but the operator's resource type (from page content) suggests services would be a natural fit (e.g., agent that processes requests, MCP server with tools, API wrapper)
+- **—** — No services registered and the resource type doesn't suggest a callable service (pure data product, static content site)
+
+Note: if no OpenAPI spec is found (404), report as `—` with: *"No OpenAPI spec found — this resolves once a service or data file is registered."*
+
+---
+
+## Phase 5 — Content Score
+
+Examine posts (`/tmp/rstack_posts.json`) and courses (`/tmp/rstack_courses.json`). Also check `md_content` in `page.json` for a `<!-- paywall` marker.
+
+**Scoring:**
+- **A** — ≥1 published post OR ≥1 published course OR a paywall marker in md_content
+- **B** — Content endpoints exist (200 response) but arrays are empty — content is draft or planned but not published
+- **C** — No content published and no paywall; resource type (from page content) suggests content would be a natural fit (tutorial agent, research tool, analysis service)
+- **—** — No content published; resource type is a pure data product or service gateway with no content angle
+
+---
+
+## Phase 6 — Discovery Score
 
 Examine the three discovery surfaces.
 
@@ -124,7 +179,7 @@ Examine the three discovery surfaces.
 
 ---
 
-## Phase 5 — Distribution Score
+## Phase 7 — Distribution Score
 
 Check whether the operator appears in known external registries. These checks are heuristic — absence doesn't guarantee they're not listed, but presence confirms they are.
 
@@ -147,9 +202,9 @@ curl -sf "https://skills.sh/skills/$SUBDOMAIN" -o /dev/null -w "%{http_code}" 2>
 
 ---
 
-## Phase 6 — Produce Scorecard
+## Phase 8 — Produce Scorecard
 
-Output the full scorecard and priority action list. Use the box format below. Be specific — reference actual values from the page (e.g., actual description length, actual missing A2A fields).
+Output the full scorecard and priority action list. Use the box format below. Be specific — reference actual values from the page (e.g., actual description length, actual missing A2A fields, actual service count).
 
 ```
 ══════════════════════════════════════════════
@@ -158,6 +213,8 @@ Output the full scorecard and priority action list. Use the box format below. Be
   Page Content      {grade}  {action or "✓ good"}
   Agent Card        {grade}  {action or "✓ good"}
   Data Marketplace  {grade}  {action or "—"}
+  Services          {grade}  {action or "—"}
+  Content           {grade}  {action or "—"}
   Discovery         {grade}  {action or "✓ good"}
   Distribution      {grade}  {action or "✓ good"}
 ══════════════════════════════════════════════
@@ -169,16 +226,32 @@ Priority action list:
 Example entries:
   1. [HIGH] /rstack-page — agent card is placeholder (_note field present).
      Other agents cannot discover your capabilities or auth method.
-  2. [HIGH] /rstack-distribute — not listed on Smithery, mcp.so, or skills.sh.
+  2. [HIGH] /rstack-services — no services registered. Your page describes an agent
+     that processes requests — register your endpoint to earn per call.
+  3. [HIGH] /rstack-distribute — not listed on Smithery, mcp.so, or skills.sh.
      These platforms have agents actively searching for tools like yours.
-  3. [MEDIUM] /rstack-page — md_content is only 45 chars (threshold: 200).
+  4. [MEDIUM] /rstack-content — no blog posts or courses published. If you have
+     knowledge worth sharing, this unlocks a recurring content revenue stream.
+  5. [MEDIUM] /rstack-page — md_content is only 45 chars (threshold: 200).
      Agents landing on your page cannot determine relevance or how to call you.
-  4. [LOW] /rstack-data — no data files uploaded.
+  6. [LOW] /rstack-data — no data files uploaded.
      If you have datasets to sell, this is an untapped revenue stream.
 ══════════════════════════════════════════════
 ```
 
-If all areas score B or above: congratulate, note what's strong, and suggest running `/rstack-distribute` to maximize reach.
+**Revenue stream summary** — append below the scorecard if any revenue stream is active:
+
+```
+  Active revenue streams:
+  {list each active stream with its URL, e.g.:}
+  · Data:     https://{subdomain}.resolved.sh/data/{filename}/schema
+  · Services: https://{subdomain}.resolved.sh/service/{name}
+  · Content:  https://{subdomain}.resolved.sh/posts
+  · Tips:     POST https://{subdomain}.resolved.sh/tip (always-on)
+  · Contact:  POST https://{subdomain}.resolved.sh/contact (always-on)
+```
+
+If all scored areas are B or above: congratulate, note what's strong, and suggest running `/rstack-distribute` to maximize reach.
 
 ---
 
