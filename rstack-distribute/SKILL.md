@@ -9,13 +9,6 @@ description: |
   discovered", "where should I list this", or after rstack-audit reports distribution gaps.
 metadata:
   version: "1.0.0"
-  env:
-    - name: RESOLVED_SH_SUBDOMAIN
-      description: Your resolved.sh subdomain slug
-      required: true
-    - name: GITHUB_REPO
-      description: Your GitHub repo URL (e.g. https://github.com/user/repo) — needed for Smithery and skills.sh
-      required: false
 ---
 
 # rstack-distribute
@@ -23,6 +16,10 @@ metadata:
 You're registered on resolved.sh. Now get discovered on the platforms where agents
 and developers are actively searching for tools. This skill figures out which channels
 apply to your resource and generates the exact content for each.
+
+**Environment variables:**
+- `RESOLVED_SH_SUBDOMAIN` (required) — your resolved.sh subdomain slug
+- `GITHUB_REPO` (optional) — your GitHub repo URL (e.g. https://github.com/user/repo); needed for Smithery and skills.sh
 
 ---
 
@@ -152,17 +149,16 @@ version: "1.0.0"
 ```yaml
 ---
 name: "{subdomain}"
+version: "1.0.0"
 description: |
   {2-3 sentences focused on WHEN Claude should invoke this skill.
   Start with the use case, not a description of what it is.
   Example: "Use when the user needs real-time DeFi swap data on Base mainnet.
   Queries Uniswap v3 pools, returns pricing and volume data, and supports
   historical lookups. Requires API_KEY env var."}
-license: MIT
-metadata:
-  version: "1.0.0"
-  author: "{operator name}"
-  version: "1.0.0"
+allowed-tools:
+  - Bash
+  - WebFetch
 ---
 
 # {display_name}
@@ -172,9 +168,9 @@ focused on how an AI assistant should use this skill.}
 
 ## Setup
 
-```bash
+\`\`\`bash
 export {SUBDOMAIN_UPPER}_API_KEY="your-api-key"
-```
+\`\`\`
 
 ## Usage
 

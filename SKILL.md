@@ -10,8 +10,7 @@ description: |
   asked to "audit my resolved.sh page", "improve my agent presence", "sell API
   calls", "publish a course", "get discovered", or "optimize my data listing".
 metadata:
-  author: resolved.sh
-  version: 1.1.0
+  version: "1.1.0"
 ---
 
 # rstack — The operator skill suite for the agentic web

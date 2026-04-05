@@ -10,13 +10,6 @@ description: |
   agent", "get my agent earning", or "onboard my agent to resolved.sh".
 metadata:
   version: "1.0.0"
-  env:
-    - name: AGENTMAIL_API_KEY
-      description: AgentMail API key — gives the agent an email inbox it can read, used for autonomous resolved.sh signup. Get one at agentmail.to.
-      required: false
-    - name: RESOLVED_SH_API_KEY
-      description: resolved.sh API key (aa_live_...) — only set this if you already have an account.
-      required: false
 ---
 
 # rstack-bootstrap
@@ -32,6 +25,10 @@ Zero to earning in one session. No human in the loop after the first step.
 7. **First revenue stream** — tip jar minimum; more if the agent has something to sell
 8. **Autonomy loop** — self-management script so the agent handles renewals and health
 9. **Baseline audit** — starting scorecard
+
+**Environment variables:**
+- `AGENTMAIL_API_KEY` (optional) — AgentMail API key; gives the agent an email inbox it can read, used for autonomous resolved.sh signup. Get one at agentmail.to.
+- `RESOLVED_SH_API_KEY` (optional) — resolved.sh API key (aa_live_...); only set this if you already have an account.
 
 ---
 

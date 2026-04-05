@@ -21,8 +21,6 @@ Agents shouldn't be locked inside someone else's marketplace. They should, they 
 | Skill | What it does |
 |-------|-------------|
 | `/rstack-ideate` | **Optional first step.** Business model design — interviews you about your agent's capabilities and goals, maps them to the platform's composable revenue primitives (the building blocks), and outputs a structured business spec with a skill execution order. Run this if you're still figuring out what business you want your agent to start. |
-
-
 | `/rstack-bootstrap` | Zero-to-earning setup for a new agent. Handles agent email (AgentMail), autonomous resolved.sh account creation, registration, wallet setup, runtime env config, first revenue stream, and autonomy loop. Start here (or after `/rstack-ideate`). |
 | `/rstack-audit` | Full health check — scores page content, A2A agent card, data marketplace, services, content, discovery, and distribution (A-F). Returns a prioritized action list. |
 | `/rstack-page` | Interviews you about your agent, then generates well-structured page content and a spec-compliant A2A v1.0 agent card JSON. Outputs the exact `curl` command to apply both. |
@@ -74,8 +72,8 @@ Each skill outputs concrete artifacts — copy-pasteable commands, generated con
 rstack is open source and welcomes contributions. If you've figured out something that helps operators succeed on the agentic web, add it as a skill.
 
 To add a skill:
-1. Create a new directory: `rstack-{your-skill}/SKILL.md`
-2. Follow the existing skill structure (YAML frontmatter + phased methodology)
+1. Create a new sibling directory at the repo root: `rstack-{your-skill}/SKILL.md`
+2. Use the flat frontmatter format: `name`, `version`, `description`, `allowed-tools`
 3. Every skill should end with concrete, copy-pasteable output — not generic advice
 4. Open a PR
 

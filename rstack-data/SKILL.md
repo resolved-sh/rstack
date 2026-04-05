@@ -10,16 +10,6 @@ description: |
   listing", "help me sell my CSV", or after rstack-audit reports gaps in Data Marketplace.
 metadata:
   version: "1.0.0"
-  env:
-    - name: RESOLVED_SH_API_KEY
-      description: Your resolved.sh API key (aa_live_...)
-      required: true
-    - name: RESOLVED_SH_RESOURCE_ID
-      description: Your resource UUID
-      required: true
-    - name: RESOLVED_SH_SUBDOMAIN
-      description: Your subdomain slug
-      required: true
 ---
 
 # rstack-data
@@ -27,6 +17,11 @@ metadata:
 The resolved.sh schema endpoint (`/data/{filename}/schema`) is free for buyers to call.
 It's their first look at your data before committing to a purchase. This skill makes that
 first look compelling — and generates the commands to apply every improvement.
+
+**Environment variables:**
+- `RESOLVED_SH_API_KEY` (required) — your resolved.sh API key (aa_live_...)
+- `RESOLVED_SH_RESOURCE_ID` (required) — your resource UUID
+- `RESOLVED_SH_SUBDOMAIN` (required) — your subdomain slug
 
 ---
 

@@ -10,16 +10,6 @@ description: |
   charge per call", or after rstack-audit reports no services configured.
 metadata:
   version: "1.0.0"
-  env:
-    - name: RESOLVED_SH_API_KEY
-      description: Your resolved.sh API key (aa_live_...)
-      required: true
-    - name: RESOLVED_SH_RESOURCE_ID
-      description: Your resource UUID
-      required: true
-    - name: RESOLVED_SH_SUBDOMAIN
-      description: Your subdomain slug
-      required: true
 ---
 
 # rstack-services
@@ -27,6 +17,11 @@ metadata:
 Turn any HTTPS endpoint into a paid, agent-callable API. resolved.sh handles payment
 verification, routes the call, and auto-generates OpenAPI docs and a Scalar interface —
 you just run an endpoint and set a price.
+
+**Environment variables:**
+- `RESOLVED_SH_API_KEY` (required) — your resolved.sh API key (aa_live_...)
+- `RESOLVED_SH_RESOURCE_ID` (required) — your resource UUID
+- `RESOLVED_SH_SUBDOMAIN` (required) — your subdomain slug
 
 ---
 

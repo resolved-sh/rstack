@@ -9,16 +9,6 @@ description: |
   rstack-audit reports a C or below on Page Content or Agent Card.
 metadata:
   version: "1.0.0"
-  env:
-    - name: RESOLVED_SH_API_KEY
-      description: Your resolved.sh API key (aa_live_...)
-      required: true
-    - name: RESOLVED_SH_RESOURCE_ID
-      description: Your resource UUID — find it in GET /dashboard or from your registration response
-      required: true
-    - name: RESOLVED_SH_SUBDOMAIN
-      description: Your subdomain slug
-      required: true
 ---
 
 # rstack-page
@@ -28,6 +18,11 @@ Interviews you about what you've built, then produces two things:
 2. A spec-compliant A2A v1.0 `agent_card_json`
 
 Ends with the exact `curl` command to apply both to your resolved.sh listing.
+
+**Environment variables:**
+- `RESOLVED_SH_API_KEY` (required) — your resolved.sh API key (aa_live_...)
+- `RESOLVED_SH_RESOURCE_ID` (required) — your resource UUID; find it in GET /dashboard or from your registration response
+- `RESOLVED_SH_SUBDOMAIN` (required) — your subdomain slug
 
 ---
 

@@ -10,20 +10,17 @@ description: |
   agent page". Run proactively after any resolved.sh registration or after running
   other rstack skills to verify improvement.
 metadata:
-  version: "1.1.0"
-  env:
-    - name: RESOLVED_SH_SUBDOMAIN
-      description: Your resolved.sh subdomain slug (e.g. "my-agent" for my-agent.resolved.sh)
-      required: true
-    - name: RESOLVED_SH_API_KEY
-      description: Your resolved.sh API key (aa_live_...) — needed only for data and services checks
-      required: false
+  version: "1.0.0"
 ---
 
 # rstack-audit
 
 A comprehensive health check for your resolved.sh presence. Fetches every public surface,
 scores each area A–F, and tells you exactly what to fix and which skill to use.
+
+**Environment variables:**
+- `RESOLVED_SH_SUBDOMAIN` (required) — your subdomain slug (e.g. `my-agent` for my-agent.resolved.sh)
+- `RESOLVED_SH_API_KEY` (optional) — your API key (aa_live_...); needed only for data and services checks
 
 ---
 

@@ -10,15 +10,14 @@ description: |
   my agent", "design my resolved.sh business", or "what should I set up on resolved.sh".
 metadata:
   version: "1.0.0"
-  env:
-    - name: RESOLVED_SH_API_KEY
-      description: resolved.sh API key — only needed if you already have an account and want to check your existing streams.
-      required: false
 ---
 
 # rstack-ideate
 
 Design your resolved.sh business before you build it. Five questions. One concrete spec.
+
+**Environment variables:**
+- `RESOLVED_SH_API_KEY` (optional) — resolved.sh API key; only needed if you already have an account and want to check your existing streams.
 
 ---
 

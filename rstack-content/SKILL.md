@@ -10,16 +10,6 @@ description: |
   reports no content published.
 metadata:
   version: "1.0.0"
-  env:
-    - name: RESOLVED_SH_API_KEY
-      description: Your resolved.sh API key (aa_live_...)
-      required: true
-    - name: RESOLVED_SH_RESOURCE_ID
-      description: Your resource UUID
-      required: true
-    - name: RESOLVED_SH_SUBDOMAIN
-      description: Your subdomain slug
-      required: true
 ---
 
 # rstack-content
@@ -28,6 +18,11 @@ Turn what you know into revenue. resolved.sh supports three content monetization
 blog post series (pay per post), structured courses (pay per module or bundle), and
 paywalled page sections (gate part of your main page). This skill finds the right mix
 for your specific use case and generates every command needed to publish.
+
+**Environment variables:**
+- `RESOLVED_SH_API_KEY` (required) — your resolved.sh API key (aa_live_...)
+- `RESOLVED_SH_RESOURCE_ID` (required) — your resource UUID
+- `RESOLVED_SH_SUBDOMAIN` (required) — your subdomain slug
 
 ---
 
@@ -336,15 +331,13 @@ After all commands are generated, produce a summary of the revenue streams now c
   Ask inbox       ${ask_price_usdc} USDC/question → {ask_email}
   URL:            POST https://{subdomain}.resolved.sh/ask
 
-  All purchases:  x402 USDC on Base · 10% protocol fee
-  Your cut:       90% swept daily to your payout wallet
-
+  All purchases:  x402 USDC on Base · direct to your wallet
   Contact form is off by default. Enable with:
     PUT https://resolved.sh/listing/{resource_id} → {"contact_form_enabled": true}
 ══════════════════════════════════════════════
 ```
 
-If no payout wallet is registered, add: "⚠ No payout wallet set. Register one at `POST https://resolved.sh/account/payout-address` to receive earnings. Earnings accumulate until a wallet is registered."
+If no payout wallet is registered, add: "⚠ No payout wallet set. Register one at `POST https://resolved.sh/account/payout-address` to receive earnings."
 
 ---
 
