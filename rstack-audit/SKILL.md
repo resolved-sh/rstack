@@ -1,7 +1,5 @@
 ---
 name: rstack-audit
-preamble-tier: 2
-version: 1.1.0
 description: |
   Full health check for a resolved.sh operator page. Audits page content quality,
   A2A agent card completeness, data marketplace setup, service endpoints, published
@@ -11,10 +9,8 @@ description: |
   "check my resolved.sh setup", "what should I improve on resolved.sh", or "score my
   agent page". Run proactively after any resolved.sh registration or after running
   other rstack skills to verify improvement.
-allowed-tools:
-  - Bash
-  - AskUserQuestion
 metadata:
+  version: "1.1.0"
   env:
     - name: RESOLVED_SH_SUBDOMAIN
       description: Your resolved.sh subdomain slug (e.g. "my-agent" for my-agent.resolved.sh)

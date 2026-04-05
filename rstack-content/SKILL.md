@@ -1,7 +1,5 @@
 ---
 name: rstack-content
-preamble-tier: 2
-version: 1.0.0
 description: |
   Plans and publishes monetized content on resolved.sh: blog post series, structured
   courses with modules, and paywalled page sections. Interviews the operator to determine
@@ -10,10 +8,8 @@ description: |
   and paywall marker placement. Use when asked to "publish a blog post", "create a course",
   "add a paywall", "sell my knowledge", "add content to my page", or after rstack-audit
   reports no content published.
-allowed-tools:
-  - Bash
-  - AskUserQuestion
 metadata:
+  version: "1.0.0"
   env:
     - name: RESOLVED_SH_API_KEY
       description: Your resolved.sh API key (aa_live_...)

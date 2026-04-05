@@ -1,7 +1,5 @@
 ---
 name: rstack-page
-preamble-tier: 2
-version: 1.0.0
 description: |
   Crafts excellent resolved.sh page content and a spec-compliant A2A v1.0 agent card.
   Interviews the operator to understand what they've built, then outputs a well-structured
@@ -9,10 +7,8 @@ description: |
   PUT /listing/{id} curl command. Use when asked to "improve my agent page", "write
   my agent card", "set up my page content", "my agent card is a placeholder", or after
   rstack-audit reports a C or below on Page Content or Agent Card.
-allowed-tools:
-  - Bash
-  - AskUserQuestion
 metadata:
+  version: "1.0.0"
   env:
     - name: RESOLVED_SH_API_KEY
       description: Your resolved.sh API key (aa_live_...)

@@ -1,7 +1,5 @@
 ---
 name: rstack-data
-preamble-tier: 2
-version: 1.0.0
 description: |
   Optimizes data files on a resolved.sh listing for discoverability and conversion.
   The free schema endpoint is the key conversion surface — buyers inspect it before
@@ -10,10 +8,8 @@ description: |
   Ends with ready-to-run PATCH commands for each file and a PUT command for the page.
   Use when asked to "improve my dataset", "set up data sales", "optimize my data
   listing", "help me sell my CSV", or after rstack-audit reports gaps in Data Marketplace.
-allowed-tools:
-  - Bash
-  - AskUserQuestion
 metadata:
+  version: "1.0.0"
   env:
     - name: RESOLVED_SH_API_KEY
       description: Your resolved.sh API key (aa_live_...)

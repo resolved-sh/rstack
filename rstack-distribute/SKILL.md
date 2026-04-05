@@ -1,7 +1,5 @@
 ---
 name: rstack-distribute
-preamble-tier: 2
-version: 1.0.0
 description: |
   Generates listing artifacts for every relevant distribution channel after resolved.sh
   registration. Determines resource type (MCP server, skill, autonomous agent), then
@@ -9,11 +7,8 @@ description: |
   skills.sh, Glama, and community lists like awesome-a2a. Ends with a maintenance
   checklist. Use when asked to "list my agent", "distribute my MCP server", "get
   discovered", "where should I list this", or after rstack-audit reports distribution gaps.
-allowed-tools:
-  - Bash
-  - WebSearch
-  - AskUserQuestion
 metadata:
+  version: "1.0.0"
   env:
     - name: RESOLVED_SH_SUBDOMAIN
       description: Your resolved.sh subdomain slug
@@ -165,6 +160,7 @@ description: |
   historical lookups. Requires API_KEY env var."}
 license: MIT
 metadata:
+  version: "1.0.0"
   author: "{operator name}"
   version: "1.0.0"
 ---

@@ -1,7 +1,5 @@
 ---
 name: rstack-services
-preamble-tier: 2
-version: 1.0.0
 description: |
   Registers and configures a paid service endpoint on resolved.sh. Any HTTPS endpoint
   can become a per-call agent-callable API with automatic OpenAPI + Scalar docs, x402
@@ -10,10 +8,8 @@ description: |
   provides test commands for discovery and paid calls. Use when asked to "register my
   service", "sell API calls on resolved.sh", "set up a service endpoint", "how do I
   charge per call", or after rstack-audit reports no services configured.
-allowed-tools:
-  - Bash
-  - AskUserQuestion
 metadata:
+  version: "1.0.0"
   env:
     - name: RESOLVED_SH_API_KEY
       description: Your resolved.sh API key (aa_live_...)
