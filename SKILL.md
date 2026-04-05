@@ -1,5 +1,6 @@
 ---
 name: rstack
+user-invocable: true
 description: |
   The operator skill suite for the agentic web. Helps resolved.sh operators
   maximize their presence and build a successful agent-native business: audit page

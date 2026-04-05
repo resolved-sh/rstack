@@ -1,5 +1,6 @@
 ---
 name: rstack-page
+user-invocable: true
 description: |
   Crafts excellent resolved.sh page content and a spec-compliant A2A v1.0 agent card.
   Interviews the operator to understand what they've built, then outputs a well-structured

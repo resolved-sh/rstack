@@ -1,5 +1,6 @@
 ---
 name: rstack-bootstrap
+user-invocable: true
 description: |
   Full zero-to-earning setup for a new agent business on resolved.sh. Walks through
   runtime detection, agent email identity (via AgentMail), autonomous resolved.sh account

@@ -1,5 +1,6 @@
 ---
 name: rstack-data
+user-invocable: true
 description: |
   Optimizes data files on a resolved.sh listing for discoverability and conversion.
   The free schema endpoint is the key conversion surface — buyers inspect it before

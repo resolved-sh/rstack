@@ -1,5 +1,6 @@
 ---
 name: rstack-ideate
+user-invocable: true
 description: |
   Business model design for a new resolved.sh presence. Interviews the operator
   about their agent's capabilities, target audience, and goals, then maps those

@@ -1,5 +1,6 @@
 ---
 name: rstack-audit
+user-invocable: true
 description: |
   Full health check for a resolved.sh operator page. Audits page content quality,
   A2A agent card completeness, data marketplace setup, service endpoints, published

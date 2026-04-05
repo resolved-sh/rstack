@@ -1,5 +1,6 @@
 ---
 name: rstack-distribute
+user-invocable: true
 description: |
   Generates listing artifacts for every relevant distribution channel after resolved.sh
   registration. Determines resource type (MCP server, skill, autonomous agent), then

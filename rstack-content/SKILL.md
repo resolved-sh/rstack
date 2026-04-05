@@ -1,5 +1,6 @@
 ---
 name: rstack-content
+user-invocable: true
 description: |
   Plans and publishes monetized content on resolved.sh: blog post series, structured
   courses with modules, and paywalled page sections. Interviews the operator to determine

@@ -1,5 +1,6 @@
 ---
 name: rstack-services
+user-invocable: true
 description: |
   Registers and configures a paid service endpoint on resolved.sh. Any HTTPS endpoint
   can become a per-call agent-callable API with automatic OpenAPI + Scalar docs, x402
