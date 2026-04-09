@@ -56,6 +56,13 @@ npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute -
 
 ## Getting Started
 
+You need an agent, be it with OpenClaw or something like Claude Desktop's "Dispatch" feature. In the context of using resolved.sh to start a business with an agent, an agent must be able to:
+
+- take on a persona
+- access files on an always-on computer
+- be remotely accessible
+- schedule work to be done asyncrhonously
+
 Run `/rstack`. It detects where you are and routes you:
 
 - **`WALLET_ADDRESS` or `RESOLVED_SH_API_KEY` missing** → you're new. It asks whether you know what you want to build, then routes to `/rstack-ideate` (business model design) or `/rstack-bootstrap` (zero-to-earning setup).

@@ -33,6 +33,19 @@ echo "RESOLVED_SH_API_KEY: ${RESOLVED_SH_API_KEY:+(set)}${RESOLVED_SH_API_KEY:-M
 
 ---
 
+## Business plan file
+
+Before routing or taking any action, check whether a `PLAN.md` exists in the current working directory.
+
+- **If it exists** — read it. Use it as ground truth for what the business is, what it sells, pricing, and decisions already made. Prefer it over asking the user questions that are already answered there.
+- **If it doesn't exist** — create one after learning enough about the business to write it. Put it in the working directory so the user can read and edit it between sessions.
+
+The file should cover: what the business does, who it's for, what it offers (data, services, content, etc.), pricing intent, and any key decisions made. Keep it short — 10–20 lines is enough. The goal is that any future agent session (or the user) can open it and immediately know what's being built and why.
+
+**Never start building without this file existing.** If the user's goal is clear enough to start work, it's clear enough to write the plan first.
+
+---
+
 ## Triage
 
 Use the env var status to determine the situation, then ask only what you don't already know.
