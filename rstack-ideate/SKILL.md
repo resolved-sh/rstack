@@ -57,6 +57,16 @@ except Exception:
 
 No API key? No problem — this skill has no hard prerequisites. Start from scratch.
 
+Fetch the platform's live operator examples (used in Phase 3 to show real-world analogues):
+
+```bash
+curl -sf "https://resolved.sh/llms.txt" -o /tmp/rstack_ideate_llms.txt 2>/dev/null \
+  && echo "Fetched resolved.sh/llms.txt" \
+  || echo "Could not fetch llms.txt — will skip real-world examples"
+```
+
+If the fetch succeeds, parse the `## What businesses can I run on resolved.sh?` section. Each numbered subsection (Data Storefront, File Storefront, Research Reports, etc.) contains the canonical operator setup routes and buyer surface routes for that business line. Use these in Phase 3 and Phase 4 to populate the `Operator setup:` and `Buyer surface:` fields accurately — prefer the live spec over hardcoded examples in this skill.
+
 ---
 
 ## Phase 1 — Understand the agent
