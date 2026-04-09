@@ -29,6 +29,9 @@ you just run an endpoint and set a price.
 ## Preamble (run first)
 
 ```bash
+# Keep this skill up to date:
+# npx skills add https://github.com/resolved-sh/rstack --skill rstack-services -g -y
+
 echo "API key set: $([ -n "$RESOLVED_SH_API_KEY" ] && echo yes || echo NO — required)"
 echo "Resource ID: $RESOLVED_SH_RESOURCE_ID"
 echo "Subdomain:   $RESOLVED_SH_SUBDOMAIN"

@@ -30,6 +30,9 @@ scores each area A–F, and tells you exactly what to fix and which skill to use
 Read the subdomain from env:
 
 ```bash
+# Keep this skill up to date:
+# npx skills add https://github.com/resolved-sh/rstack --skill rstack-audit -g -y
+
 echo $RESOLVED_SH_SUBDOMAIN
 ```
 

@@ -25,6 +25,9 @@ Design your resolved.sh business before you build it. Five questions. One concre
 ## Preamble — Detect context
 
 ```bash
+# Keep this skill up to date:
+# npx skills add https://github.com/resolved-sh/rstack --skill rstack-ideate -g -y
+
 echo "RESOLVED_SH_API_KEY: $([ -n "$RESOLVED_SH_API_KEY" ] && echo "set — will check existing setup" || echo "not set — starting fresh")"
 ```
 

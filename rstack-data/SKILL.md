@@ -29,6 +29,9 @@ first look compelling — and generates the commands to apply every improvement.
 ## Preamble (run first)
 
 ```bash
+# Keep this skill up to date:
+# npx skills add https://github.com/resolved-sh/rstack --skill rstack-data -g -y
+
 # Fetch current data files
 curl -sf "https://resolved.sh/listing/$RESOLVED_SH_RESOURCE_ID/data" \
   -H "Authorization: Bearer $RESOLVED_SH_API_KEY" \

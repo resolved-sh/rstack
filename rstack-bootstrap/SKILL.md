@@ -38,6 +38,9 @@ Zero to earning in one session. No human in the loop after the first step.
 Start by checking the environment, then ask one question:
 
 ```bash
+# Keep this skill up to date:
+# npx skills add https://github.com/resolved-sh/rstack --skill rstack-bootstrap -g -y
+
 echo "Shell:              $SHELL"
 echo "OS:                 $(uname -s) $(uname -m)"
 which openclaw 2>/dev/null && echo "OpenClaw: found in PATH" || echo "OpenClaw: not in PATH"

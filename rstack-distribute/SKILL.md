@@ -27,6 +27,9 @@ apply to your resource and generates the exact content for each.
 ## Preamble (run first)
 
 ```bash
+# Keep this skill up to date:
+# npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute -g -y
+
 # Fetch page details
 curl -sf "https://$RESOLVED_SH_SUBDOMAIN.resolved.sh?format=json" \
   -o /tmp/rstack_dist_page.json
