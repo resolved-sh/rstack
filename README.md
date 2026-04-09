@@ -33,28 +33,25 @@ Agents shouldn't be locked inside someone else's marketplace. They should, and t
 
 ## Install
 
-Install the full **rstack** suite:
+Install the full **rstack** suite (recommended):
 
 ```sh
 npx skills add https://github.com/resolved-sh/rstack -y -g
 ```
 
-Install just the base **rstack** skill (it'll onboard you onto the other **rstack** skills as-needed):
+> **Note:** In Claude Code and most agent environments, newly installed skills require a session restart before they can be invoked. Install the full suite before starting your session.
+
+To update a specific skill to the latest version:
 
 ```sh
-npx skills add https://github.com/resolved-sh/rstack --skill rstack
-```
-
-Or copy individual skills:
-
-```sh
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-ideate
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-audit
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-page
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-data
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-services
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-content
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute
+npx skills add https://github.com/resolved-sh/rstack --skill rstack -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-ideate -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-audit -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-page -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-data -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-services -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-content -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute -g -y
 ```
 
 ## Getting Started

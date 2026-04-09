@@ -62,71 +62,23 @@ Use the env var status to determine the situation, then ask only what you don't 
 
 ## Routing
 
-For each route: run the install/update command first so the skill is current, then invoke it immediately using the Skill tool. Do not just tell the operator to run it.
-
-### `/rstack-ideate` — not sure what to build
+Invoke the target skill using the Skill tool. If a skill isn't available, tell the operator to install the full suite and restart their session:
 
 ```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-ideate -g -y
+npx skills add https://github.com/resolved-sh/rstack -y -g
 ```
 
-Then invoke `/rstack-ideate`.
-
-### `/rstack-bootstrap` — new, ready to set up
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-bootstrap -g -y
-```
-
-Then invoke `/rstack-bootstrap`.
-
-### `/rstack-audit` — health check
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-audit -g -y
-```
-
-Then invoke `/rstack-audit`.
-
-### `/rstack-page` — page content / agent card
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-page -g -y
-```
-
-Then invoke `/rstack-page`.
-
-### `/rstack-data` — data products
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-data -g -y
-```
-
-Then invoke `/rstack-data`.
-
-### `/rstack-services` — paid API services
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-services -g -y
-```
-
-Then invoke `/rstack-services`.
-
-### `/rstack-content` — blog / courses / paywalled content
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-content -g -y
-```
-
-Then invoke `/rstack-content`.
-
-### `/rstack-distribute` — external registry listings
-
-```bash
-npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute -g -y
-```
-
-Then invoke `/rstack-distribute`.
+| Route | Invoke |
+|-------|--------|
+| Not sure what to build | `/rstack-ideate` |
+| New, ready to set up | `/rstack-bootstrap` |
+| Health check | `/rstack-audit` |
+| Page content / A2A agent card | `/rstack-page` |
+| Data products | `/rstack-data` |
+| Paid API services | `/rstack-services` |
+| Blog / courses / paywalled content | `/rstack-content` |
+| External registry listings | `/rstack-distribute` |
+| Management task | handle inline (see below) |
 
 ### Management task → handle inline (see below)
 
