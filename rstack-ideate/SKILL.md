@@ -73,7 +73,7 @@ If the fetch succeeds, parse the `## What businesses can I run on resolved.sh?` 
 
 Ask these questions **one at a time**, waiting for an answer before proceeding.
 
-**Q1:** "What does your agent, MCP server, skill, or tool do? One concrete sentence — the specific thing it produces, processes, or delivers."
+**Q1:** "What does your agent do? One concrete sentence — the specific thing it produces, processes, or delivers, and who it does that for."
 
 **Q2:** "What does it output? Pick all that apply:
 

@@ -50,9 +50,11 @@ else:
 "
 ```
 
-If no files exist, ask: "You have no data files yet. Do you have datasets to sell? (A) Yes — let's set up your first one, (B) No — nothing to optimize here"
+If no files exist, ask: "You have no data files yet. Do you have datasets to sell? (A) Yes — let's upload your first one, (B) No — nothing to optimize here"
 
 If B: respond "Nothing to do here yet. Come back when you have data files to upload." and end with DONE.
+
+If A: jump to **Upload a new file** below.
 
 For each file, also fetch its schema:
 
@@ -221,6 +223,65 @@ If any file's pricing looks suboptimal based on Phase 2 assessment:
 - **File is priced above $5 but description doesn't justify it:** "Your pricing is in the human/enterprise range but your description doesn't explain the data's unique value. Either lower the price or strengthen the description — buyers at this price point need a compelling reason."
 - **File is priced below $0.50 and relies on Stripe buyers:** "Note: Stripe requires a minimum of $0.50. x402 handles sub-$0.50 pricing. If you want Stripe buyers (human researchers, developers), consider pricing at $0.50+."
 - **Queryable file with no split pricing and `price_usdc` ≥ $0.50:** "Consider split pricing: set `query_price_usdc` to $0.01–$0.10 for per-row agent queries and keep the higher `price_usdc` as the download price. Without split pricing, every query costs the full download price — most agents won't pay that."
+
+---
+
+---
+
+## Upload a new file
+
+Use this when the operator has a file to upload for the first time, or needs to re-upload an existing file (e.g. to fix queryability).
+
+Ask:
+1. "What is the local path to the file?" (e.g. `/tmp/agent-systems.csv`)
+2. "What price should a full download cost? (e.g. `0.50`)"
+3. "What price per query? Leave blank to use the download price for all access."
+4. "Describe the dataset in one sentence — this becomes the listing description."
+
+Then generate the upload command:
+
+```bash
+# Upload / re-upload a data file
+curl -X PUT "https://resolved.sh/listing/$RESOLVED_SH_RESOURCE_ID/data/{filename}" \
+  -H "Authorization: Bearer $RESOLVED_SH_API_KEY" \
+  -H "Content-Type: {content-type}" \
+  --data-binary @{local-path} \
+  -G \
+  --data-urlencode "price_usdc={download_price}" \
+  --data-urlencode "query_price_usdc={query_price}" \
+  --data-urlencode "download_price_usdc={download_price}" \
+  --data-urlencode "description={description}"
+```
+
+**Content-type guide:**
+- `.csv` → `text/csv`
+- `.jsonl` or `.ndjson` → `application/x-ndjson`
+- `.json` → `application/json`
+- `.parquet` → `application/octet-stream`
+
+**Re-uploading to fix queryability:** If the schema endpoint returns `queryable: false` for a CSV or JSONL file, the file needs to be re-uploaded. First delete the old file:
+
+```bash
+# Get the file_id from the listing
+curl -sf "https://resolved.sh/listing/$RESOLVED_SH_RESOURCE_ID/data" \
+  -H "Authorization: Bearer $RESOLVED_SH_API_KEY" | \
+  python3 -c "import sys,json; [print(f['id'], f['filename']) for f in json.load(sys.stdin).get('files',[])]"
+
+# Delete the old file
+curl -X DELETE "https://resolved.sh/listing/$RESOLVED_SH_RESOURCE_ID/data/{file_id}" \
+  -H "Authorization: Bearer $RESOLVED_SH_API_KEY"
+```
+
+Then re-run the upload command above. Ensure the file is valid UTF-8 CSV with a header row, or valid JSONL (one JSON object per line).
+
+After a successful upload, verify queryability:
+
+```bash
+curl -sf "https://$RESOLVED_SH_SUBDOMAIN.resolved.sh/data/{filename}/schema" | \
+  python3 -c "import sys,json; d=json.load(sys.stdin); print('queryable:', d['queryable'], '| rows:', d.get('row_count'), '| cols:', [c['name'] for c in d.get('columns',[])])"
+```
+
+After upload, continue to **Phase 1** to optimize the description.
 
 ---
 
