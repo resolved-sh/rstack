@@ -2,18 +2,19 @@
 
 > "Very soon there are going to be more AI agents than humans making transactions." — [Brian Armstrong, March 9th 2026](https://x.com/brian_armstrong/status/2031021867973194172)
 
-When Armstrong said this, I wanted to know what it would actually *look like*. Would a wallet with some stablecoins be enough? Autonomous agnets like OpenClaw are here, and they're ready to take our ideas and run with them, so what needs to exist for "very soon" to become "now", and how can we work with our agents to build viable businesses?
+When Armstrong said this, I wanted to know what it would actually *look like*. Would a wallet with some stablecoins be enough? Autonomous agnets like OpenClaw are here, and they're ready to take our ideas and run with them, but most people don't know have a good wy to put them to work so that "very soon" can become "now".
 
-This is **rstack** (yes, it's inspired by [Garry Tan's gstack](https://github.com/garrytan/gstack)). rstack aims to help you run a semi-autonomous business with your agent, be it OpenClaw, Claude Code, or whatever. It turns your coding agent into a guide that helps you leverage [resolved.sh](https://resolved.sh) to do just that. If your agent has email access, it has all it needs to onboard itself and build a business with the potential to make real income with ZERO transaction fees. [resolved.sh](https://resolved.sh) gets your agent a page, a vanity subdomain, a data storefront, and full buyer to seller direct x402 payment infrastructure, all programmatically, no human required.
+This is **rstack** (yes, it's inspired by [Garry Tan's gstack](https://github.com/garrytan/gstack)). rstack aims to help you build and run a semi-autonomous business with your agent, be it OpenClaw, Claude Code, or whatever. It turns your coding agent into a guide that helps you leverage [resolved.sh](https://resolved.sh) to do just that. If your agent has email access, it has all it needs to onboard itself, take your guidance and domain expertise, and build a business with the potential to make real income (and ZERO transaction fees). [resolved.sh](https://resolved.sh) gets your agent a page, a vanity subdomain, a data storefront, and full buyer to seller direct business infrastructure, all programmatically, no human required.
 
 Agents shouldn't be locked inside someone else's marketplace. They should, and they will be active on the open internet, transacting with humans, with other agents, generating revenue streams, evolving the business as it learns what works and what doesn't. Use **rstack** to audit your setup, draft page content, A2A agent card, optimize your data products for conversion, register paid services that you sell, publish monetized content, and distribute your service so you can build a real customer base.
 
-**rstack** is open source. Adapt it 👍. Or, even better, contribute to it by tossing some PRs this way. The more you help others, the more they'll help back, and the more you can use **rstack** to make a successful business.
+**rstack** is open source. Adapt it 👍. Or, even better, contribute to it by tossing some PRs this way. The more you help others, the more they'll help back, and the more all of us can use **rstack** to learn and make successful business.
 
 **Who this is for:**
 
+- **"OpenClaw is cool, and I'm a master ninja at using it..."** -- great, now prove it hot shot.
 - **"OpenClaw is cool, but I don't really know what to do with it..."** -- great, now you do.
-- **"I have this Claude subscription, can I make it into an agent?"** -- yes, make it into an agent that makes you a business.
+- **"I have this Claude subscription, can I make it into an agent?"** -- yes, Claude Desktop is basically an agent, make it into one that makes you a business.
 
 ---
 
@@ -22,6 +23,10 @@ Agents shouldn't be locked inside someone else's marketplace. They should, and t
 | Skill | What it does |
 |-------|-------------|
 | `/rstack` | **Start here.** Entry point and router. Detects your context — checks env vars, fetches live page and dashboard state if you're already registered — then routes you to the right skill. Also handles management tasks inline (register, renew, update page, domain, payout wallet). |
+
+
+
+
 | `/rstack-ideate` | Business model design — interviews you about your agent's capabilities and goals, maps them to the platform's composable revenue primitives (the building blocks), and outputs a structured business spec with a skill execution order. Run this if you're still figuring out what business you want your agent to start. |
 | `/rstack-bootstrap` | Zero-to-earning setup for a new agent. Handles agent email (AgentMail), autonomous resolved.sh account creation, registration, wallet setup, runtime env config, first revenue stream, and autonomy loop. |
 | `/rstack-audit` | Full health check — scores page content, A2A agent card, data marketplace, services, content, discovery, and distribution (A-F). Returns a prioritized action list. |
