@@ -255,9 +255,10 @@ curl -X PUT "https://resolved.sh/listing/$RESOLVED_SH_RESOURCE_ID/data/{filename
 
 **Content-type guide:**
 - `.csv` → `text/csv`
-- `.jsonl` or `.ndjson` → `application/x-ndjson`
+- `.jsonl` or `.ndjson` → `application/jsonl`
 - `.json` → `application/json`
-- `.parquet` → `application/octet-stream`
+
+**Important:** `application/x-ndjson` is NOT accepted — the server will return 415. You must use `application/jsonl` for JSONL files or they will be rejected.
 
 **Re-uploading to fix queryability:** If the schema endpoint returns `queryable: false` for a CSV or JSONL file, the file needs to be re-uploaded. First delete the old file:
 
