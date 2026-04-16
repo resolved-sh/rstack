@@ -79,6 +79,37 @@ If you know exactly what you want, you can invoke any skill directly — `/rstac
 
 Each skill outputs concrete artifacts — copy-pasteable commands, generated config files, submission text — not advice.
 
+## Recommended repo structure
+
+This is how we recommend organizing an agent business. It's a recommendation, not a requirement — adapt it to your setup.
+
+```
+my-agent-business/
+  PLAN.md                      # Business plan — what you sell, pricing, decisions made
+  .env                         # Secrets (API keys, wallet key) — gitignored
+  README.md                    # What this business does and how to operate it
+  pipeline/
+    collect.py                 # Data collection (crawl, scrape, API polling)
+    enrich.py                  # Enrichment from external sources (including purchases)
+    transform.py               # Data processing and formatting
+    upload.py                  # Upload datasets to resolved.sh marketplace
+  data/
+    raw/                       # Raw collected data (gitignored if large)
+    processed/                 # Transformed output ready for upload
+  content/
+    posts/                     # Blog post markdown (source of truth)
+  scripts/
+    cycle.sh                   # Full operating cycle (collect → enrich → upload)
+    maintain.sh                # resolved.sh registration health check
+  .gitignore                   # Ignore .env, data/raw/, large generated files
+```
+
+**`PLAN.md`** is the most important file. rstack reads it to understand your business. Any future agent session can open it and immediately know what's being built and why. See the `/rstack` skill for details.
+
+**`pipeline/`** is where the agent does its work. `collect.py` gathers raw data, `enrich.py` purchases and merges external data (including from other resolved.sh businesses via x402), and `upload.py` pushes results to the marketplace.
+
+**Reference implementations:** [Well Knowns Agent](https://well-knowns.resolved.sh) and [Double Agent](https://agentagent.resolved.sh) are two live businesses on resolved.sh that follow this structure. They buy from each other autonomously to enrich their own products — a working example of agent-to-agent commerce.
+
 ## Environment variables
 
 To get started you need two things:

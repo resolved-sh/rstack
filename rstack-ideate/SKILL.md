@@ -15,7 +15,7 @@ metadata:
 
 # rstack-ideate
 
-Design your resolved.sh business before you build it. Five questions. One concrete spec.
+Figure out what expertise you're packaging and how to sell it. Six questions. One concrete spec.
 
 **Environment variables:**
 - `RESOLVED_SH_API_KEY` (optional) — resolved.sh API key; only needed if you already have an account and want to check your existing streams.
@@ -72,6 +72,8 @@ If the fetch succeeds, parse the `## What businesses can I run on resolved.sh?` 
 ## Phase 1 — Understand the agent
 
 Ask these questions **one at a time**, waiting for an answer before proceeding.
+
+**Q0:** "What do you know deeply? What domain expertise, curated knowledge, or hard-won methodology does this agent (or the human behind it) bring? One sentence — the specific thing that makes your output worth paying for."
 
 **Q1:** "What does your agent do? One concrete sentence — the specific thing it produces, processes, or delivers, and who it does that for."
 
@@ -174,6 +176,8 @@ Synthesize the answers into a single concrete recommendation. Output this block:
   Recommended model: {Primary} + {Supporting 1} + {Supporting 2}
 ══════════════════════════════════════════════
 
+Expertise: {Q0 answer} — this is why buyers pay
+
 Primary:  {Block name} — {rationale} at ${suggested_price}
           {key operator API call}
 
@@ -218,6 +222,9 @@ spec = """# rstack-ideate business spec
 
 ## Agent
 {description}  # from Q1
+
+## Domain expertise
+{expertise}  # from Q0 — the knowledge or methodology that makes this worth paying for
 
 ## Revenue streams
 primary:

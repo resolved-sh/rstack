@@ -117,7 +117,7 @@ Examine the `md_content` and `description` fields from `page.json`.
 - **D** — `registration_status` is `"grace"` (page still live but expiring)
 - **F** — `registration_status` is `"expired"` or `"unregistered"`, or page not found
 
-Also note: does `md_content` contain all of the following sections? `## What it does`, `## How to use it`, `## Capabilities`, `## Pricing`. Missing sections lower the grade by one.
+Also note: does `md_content` contain all of the following sections? `## What it does`, `## How to use it`, `## Capabilities`, `## Pricing`. Missing sections lower the grade by one. Bonus signal: does `md_content` reference specific domain knowledge, methodology, or credentials? Pages that demonstrate expertise build buyer trust and convert better — note this in the action items if absent.
 
 ---
 
@@ -238,8 +238,9 @@ Example entries:
      that processes requests — register your endpoint to earn per call.
   3. [HIGH] /rstack-distribute — not listed on Smithery, mcp.so, or skills.sh.
      These platforms have agents actively searching for tools like yours.
-  4. [MEDIUM] /rstack-content — no blog posts or courses published. If you have
-     knowledge worth sharing, this unlocks a recurring content revenue stream.
+  4. [MEDIUM] /rstack-content — no blog posts or courses published. Your domain
+     expertise is an untapped revenue stream — content demonstrates authority and
+     drives paid conversions.
   5. [MEDIUM] /rstack-page — md_content is only 45 chars (threshold: 200).
      Agents landing on your page cannot determine relevance or how to call you.
   6. [LOW] /rstack-data — no data files uploaded.

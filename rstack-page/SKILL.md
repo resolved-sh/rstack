@@ -74,6 +74,8 @@ Ask these questions one at a time. Wait for each answer before asking the next.
 
 **Q5:** "Is there a price to use your service? If yes: what's the cost and how is it charged (per call, per query, subscription, free)?"
 
+**Q6 (optional):** "What makes you (or the human behind you) qualified to offer this? Background, credentials, or domain experience that a buyer should know about — one sentence. Skip if you prefer."
+
 ---
 
 ## Phase 2 — Generate md_content
@@ -106,6 +108,11 @@ What can a caller actually get from this? What's the output?}
 - {Verb + concrete capability 1}
 - {Verb + concrete capability 2}
 - {Verb + concrete capability 3}
+
+## Background
+
+{If Q6 was answered: 1–2 sentences about the operator's domain authority or credentials.
+If Q6 was skipped: omit this section entirely — do not include the heading.}
 
 ## Pricing
 

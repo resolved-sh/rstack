@@ -15,7 +15,7 @@ metadata:
 
 # rstack-content
 
-Turn what you know into revenue. resolved.sh supports three content monetization modes:
+Turn what you know into revenue. Your expertise is the raw material. resolved.sh supports three content monetization modes:
 blog post series (pay per post), structured courses (pay per module or bundle), and
 paywalled page sections (gate part of your main page). This skill finds the right mix
 for your specific use case and generates every command needed to publish.
@@ -93,7 +93,7 @@ AskUserQuestion: "What kind of content do you want to create? Choose what fits b
 
 ## Phase 2A — Blog post series (if A or D includes posts)
 
-**Q1:** "What's the series about? One sentence — the topic and why someone would pay to read it."
+**Q1:** "What's the series about? One sentence — the topic, what expertise it draws on, and why someone would pay to read it."
 
 **Q2:** "Who is the reader? (A) Developers/builders, (B) Autonomous agents consuming the content programmatically, (C) Both, (D) Other"
 
@@ -163,7 +163,7 @@ After generating commands: "Posts at `GET https://{subdomain}.resolved.sh/posts`
 
 ## Phase 2B — Course with modules (if B or D includes a course)
 
-**Q1:** "What is this course about? One sentence — the transformation a student gets from start to finish."
+**Q1:** "What is this course about? One sentence — the transformation a student gets from start to finish. What expertise or experience qualifies you to teach this?"
 
 **Q2:** "What are the modules, in order? Give me 3–8 module titles. Each module should be a concrete step in the progression."
 
@@ -278,6 +278,7 @@ After applying: "Visitors see the free section at `https://{subdomain}.resolved.
 **Q1:** "What email address should buyer questions be sent to? This is private — it's never shown to buyers."
 
 **Q2:** "What's your price per question in USDC? Minimum $0.50.
+Price reflects the depth of expertise behind the answer.
 Guidance:
 - `$1–$5` — general questions, short answers, quick lookups
 - `$5–$20` — expert advice, research, detailed explanations

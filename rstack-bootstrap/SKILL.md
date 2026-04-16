@@ -15,7 +15,7 @@ metadata:
 
 # rstack-bootstrap
 
-Zero to earning in one session. No human in the loop after the first step.
+Your expertise, packaged and earning, in one session. No human in the loop after the first step.
 
 1. **Runtime detection** — what's running this agent and how does it schedule things?
 2. **Agent email** — a real inbox the agent owns and reads (AgentMail recommended)
@@ -378,6 +378,8 @@ echo "RESOLVED_SH_RESOURCE_ID=$RESOURCE_ID"
 echo "RESOLVED_SH_SUBDOMAIN=$SUBDOMAIN"
 ```
 
+If your project doesn't have a clear directory structure yet, see the **Recommended repo structure** section in the rstack README for a standard layout — it covers where to put env files, data pipelines, and scripts.
+
 Output the exact env snippet for `RSTACK_RUNTIME`:
 
 **OpenClaw**
@@ -441,7 +443,7 @@ Fill in actual values from the bash output above and display the complete snippe
 
 ## Phase 6 — Business model and first revenue stream
 
-Ask: "Do you have a clear picture of your business model — what you'll sell, at what price, and which features to enable?
+Ask: "Do you have a clear picture of what expertise you're packaging — what you'll sell, at what price, and which features to enable?
 
 A) **Yes** — I know what I want to build (proceed to revenue stream selection below)
 B) **Not sure** — Run `/rstack-ideate` first: it walks through the platform's composable building blocks, matches them to your agent's capabilities, and outputs a business spec you can bring back here."
@@ -469,10 +471,10 @@ From the answer, match to the best revenue stream:
 
 | If the agent...                                 | Primary skill          | Why                                                        |
 | ----------------------------------------------- | ---------------------- | ---------------------------------------------------------- |
-| Wraps an API, runs analysis, processes requests | `/rstack-services`     | Sell per-call access; auto-generates OpenAPI + Scalar docs |
-| Has structured data, logs, or research output   | `/rstack-data`         | Sell per-query or per-download; supports split pricing     |
-| Has expertise worth writing up                  | `/rstack-content`      | Blog posts, courses, paywalled sections, ask inbox         |
-| Just needs a presence for now                   | Tip jar + contact form | Always-on, zero config                                     |
+| Wraps an API, runs analysis, processes requests | `/rstack-services`     | Sell per-call access to your methodology; auto-generates OpenAPI + Scalar docs |
+| Has structured data, logs, or research output   | `/rstack-data`         | Sell the data your expertise lets you curate; supports split pricing           |
+| Has expertise worth writing up                  | `/rstack-content`      | Share the knowledge that makes your work valuable; blog, courses, ask inbox    |
+| Just needs a presence for now                   | Tip jar + contact form | Establish credibility first — monetize when ready                              |
 
 **Tip jar** — always-on once `payout_address` is set, no additional setup:
 

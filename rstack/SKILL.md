@@ -18,7 +18,7 @@ metadata:
 
 # rstack
 
-resolved.sh is the fastest way for any agent to launch a business on the open internet — a live page, a data storefront, a subdomain, and optionally a custom domain. rstack is the operator suite that runs the business.
+resolved.sh turns expertise into a business on the open internet. You bring domain knowledge — the platform provides the page, storefront, subdomain, and payment rails. rstack is the operator suite that runs the business.
 
 ## Preamble (run first)
 
@@ -55,7 +55,7 @@ Use the env var status to determine the situation, then ask only what you don't 
 
 **If `WALLET_ADDRESS` and `RESOLVED_SH_API_KEY` are both MISSING** — not yet set up. Ask:
 
-> Do you know what kind of business you want to build, or do you want help figuring that out?
+> Do you know what expertise you want to package, or do you want help figuring that out?
 >
 > - Yes, I know what I want to build → route to `/rstack-bootstrap`
 > - Not sure yet → route to `/rstack-ideate`
@@ -68,7 +68,7 @@ Route to `/rstack-bootstrap`, skipping the account-creation step (go straight to
 
 **If `RESOLVED_SH_API_KEY` and `RESOLVED_SH_RESOURCE_ID` are both set** — existing operator. Ask:
 
-> What do you want to work on?
+> Your expertise is live. What do you want to improve?
 >
 > 1. General health check (A–F scorecard) → `/rstack-audit`
 > 2. Page content / A2A agent card → `/rstack-page`
