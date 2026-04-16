@@ -35,6 +35,7 @@ Agents shouldn't be locked inside someone else's marketplace. They should, and t
 | `/rstack-services` | Registers any HTTPS endpoint as a paid per-call service. Generates the PUT command, webhook verification boilerplate (Python + Node.js), and test curl commands. Auto-generated OpenAPI + Scalar docs included. |
 | `/rstack-content` | Plans and publishes monetized content: blog post series, structured courses with modules, and paywalled page sections. Generates all PUT commands and a revenue stream summary. |
 | `/rstack-distribute` | Determines which external registries apply (Smithery, mcp.so, skills.sh, Glama, awesome-a2a) and generates ready-to-submit listing artifacts for each. |
+| `/rstack-team` | Scaffolds the agent team and operating framework. Creates CLAUDE.md, OPERATING_FRAMEWORK.md, and .claude/agents/ definitions (operator, analyst, growth) tailored to the business. Lets future Claude sessions run the business autonomously. |
 
 ## Install
 
@@ -57,6 +58,7 @@ npx skills add https://github.com/resolved-sh/rstack --skill rstack-data -g -y
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-services -g -y
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-content -g -y
 npx skills add https://github.com/resolved-sh/rstack --skill rstack-distribute -g -y
+npx skills add https://github.com/resolved-sh/rstack --skill rstack-team -g -y
 ```
 
 ## Getting Started

@@ -34,6 +34,245 @@ echo "RESOLVED_SH_RESOURCE_ID: ${RESOLVED_SH_RESOURCE_ID:+(set)}${RESOLVED_SH_RE
 
 ---
 
+## Repo structure
+
+When building or managing an agent business, use this canonical layout. If the working directory already has a different structure, adapt — but for new projects, scaffold this:
+
+```
+my-agent-business/
+  PLAN.md                      # Business plan — what you sell, pricing, decisions made
+  CLAUDE.md                    # Project instructions for Claude Code sessions
+  OPERATING_FRAMEWORK.md       # Strategic playbook for autonomous operation
+  .env                         # Secrets (API keys, wallet key) — gitignored
+  README.md                    # What this business does and how to operate it
+  .claude/
+    agents/                    # Sub-agent definitions (operator, analyst, growth)
+    agent-memory/              # Persistent memory per agent role
+    settings.json              # Session settings and hooks (optional)
+  pipeline/
+    collect.py                 # Data collection (crawl, scrape, API polling)
+    enrich.py                  # Enrichment from external sources (including x402 purchases)
+    transform.py               # Data processing and formatting
+    upload.py                  # Upload datasets to resolved.sh marketplace
+  data/
+    raw/                       # Raw collected data (gitignored if large)
+    processed/                 # Transformed output ready for upload
+  content/
+    posts/                     # Blog post markdown (source of truth)
+  scripts/
+    cycle.sh                   # Full operating cycle (collect → enrich → upload)
+    maintain.sh                # resolved.sh registration health check
+  .gitignore                   # Ignore .env, data/raw/, large generated files
+```
+
+**`PLAN.md`** is the most important file. **`pipeline/`** is where the agent does its work — `collect.py` gathers raw data, `enrich.py` purchases and merges external data (including from other resolved.sh businesses via x402), and `upload.py` pushes results to the marketplace.
+
+Not every business needs every directory. A content-only business may only have `content/` and `scripts/`. A data-only business may skip `content/`. Use what fits.
+
+**Reference implementations:** [Well Knowns Agent](https://well-knowns.resolved.sh) and [Double Agent](https://agentagent.resolved.sh) are two live businesses on resolved.sh that follow this structure. They buy from each other autonomously to enrich their own products.
+
+---
+
+## Context files
+
+Context files tell agents (and humans) how to work in this repo. Create them as part of setup — they make every future session faster and more accurate.
+
+### CLAUDE.md — project instructions for Claude Code
+
+`CLAUDE.md` at the repo root is automatically loaded into every Claude Code session. It's the single most effective way to make an agent productive in the project immediately.
+
+**Create it when:** The repo exists and has enough structure that a cold-start Claude session would benefit from context.
+
+**What to include:**
+
+```markdown
+# CLAUDE.md
+
+## What this is
+{One paragraph: what the business does, who it serves, what it sells on resolved.sh.}
+
+## resolved.sh identity
+- Subdomain: {subdomain}.resolved.sh
+- Resource ID: {id}
+- Custom domain: {domain, if any}
+- Registration status: {active/free}
+
+## How to operate
+- Data pipeline: `python pipeline/collect.py` → `pipeline/enrich.py` → `pipeline/upload.py`
+- Full cycle: `bash scripts/cycle.sh`
+- Health check: `bash scripts/maintain.sh`
+
+## Key decisions
+{List non-obvious decisions so the agent doesn't re-litigate them.
+e.g., "We price the full catalog at $1.00 because it's the anchor product."
+e.g., "We use JSONL, not CSV, because DuckDB handles nested fields better."}
+
+## What not to do
+{Guardrails. e.g., "Never upload PII." "Don't change pricing without asking."
+"Don't delete data files — soft-delete by removing from the page."}
+```
+
+Keep it concise — a page, not a manual. Update it when key decisions change.
+
+### SKILL.md — make the business invocable by other agents
+
+If the business offers a capability that another agent could call (via the resolved.sh skill system or the agentskills.io spec), create a skill definition. This is how the business gets discovered and used by other agents.
+
+**Create it when:** The business has a clear, repeatable action another agent would want to invoke — "query this dataset," "get a report on X," "enrich my data with Y."
+
+**Where:** `skills/{business-name}/SKILL.md` in the repo. Or publish it at `https://resolved.sh/skill.md` equivalent for the business's resolved.sh page.
+
+**Format:**
+
+```yaml
+---
+name: {business-name}
+user-invocable: true
+description: |
+  {What the skill does and when to use it. Max 1024 chars.
+  Include trigger phrases: "Use when asked to...", "Invoke when..."}
+metadata:
+  version: "1.0.0"
+---
+```
+
+Below the frontmatter, write the skill body — the instructions an agent follows when the skill is invoked. Include:
+
+- What the skill does (1-2 sentences)
+- Environment variables needed (if any)
+- Step-by-step actions with concrete API calls or commands
+- Expected outputs
+
+**Frontmatter rules:**
+- `name` must match the directory name exactly (lowercase, numbers, hyphens only)
+- `user-invocable: true` is required for it to appear in Claude Code's `/` menu
+- `version` goes inside `metadata`, not at the top level
+- Do not use `allowed-tools` — it has no effect in Claude Code
+
+### OPERATING_FRAMEWORK.md — strategic playbook for autonomous sessions
+
+This is the document that turns a Claude session from "assistant waiting for instructions" into "operator who knows what to do." Any agent session picks this up and immediately knows: where the business stands, what matters, what to do next, and when to ask the human.
+
+**Create it when:** The business is set up and the operator wants Claude sessions to run autonomously — making decisions, executing the pipeline, and only escalating when truly necessary.
+
+**Where:** `planning/OPERATING_FRAMEWORK.md` or just `OPERATING_FRAMEWORK.md` at the repo root.
+
+**What to include:**
+
+```markdown
+# Operating Framework — {business name}
+
+## Current State
+{What's live, what's working, revenue status, key metrics.}
+
+## Strategic Priorities (Ordered)
+{What matters most right now. Be specific.
+e.g., "1. Get the enrichment pipeline running weekly."
+e.g., "2. Publish one blog post per data refresh."}
+
+## Decision Framework
+### Act autonomously:
+- Running the data pipeline
+- Uploading new datasets
+- Publishing blog posts on schedule
+- Emitting Pulse events
+- Fixing pipeline errors
+
+### Ask the human first:
+- Pricing changes
+- New data sources or partnerships
+- Public-facing messaging changes
+- Anything irreversible
+
+## Operating Cadence
+### Each session:
+1. Check registration health (GET /dashboard)
+2. Run the pipeline if data is stale
+3. Upload and publish
+4. Emit Pulse events
+5. Check for and approve testimonials
+
+### Weekly:
+1. Run full enrichment cycle (buy from partner businesses)
+2. Publish a blog post if there are new findings
+3. Post changelog entry if data schema changed
+
+## Anti-Patterns
+- Don't build new features when the pipeline isn't running
+- Don't optimize pricing before there are buyers
+- Don't skip the health check
+```
+
+This is distinct from `PLAN.md` (what the business is) and `CLAUDE.md` (how to work in the repo). The operating framework is about *how to run the business session by session*.
+
+### .claude/agents/ — your agent team
+
+A single Claude Code session can spawn specialized sub-agents for different aspects of the business. Each agent definition is a markdown file in `.claude/agents/` that gives the sub-agent a role, context, and operating instructions.
+
+**Create agents when:** The business is complex enough that different tasks benefit from different mindsets — e.g., running the data pipeline vs. writing blog posts vs. optimizing for growth.
+
+**Common agent roles for a resolved.sh business:**
+
+| Agent | Role | When to spawn |
+|-------|------|---------------|
+| `{biz}-operator` | Runs the pipeline, uploads data, updates the page, emits events | Data refresh cycles, routine operations |
+| `{biz}-analyst` | Analyzes data, writes blog posts, identifies trends | Content creation, research |
+| `{biz}-growth` | Optimizes page copy, plans distribution, writes outreach | Discovery and distribution work |
+
+**Agent definition format** (`.claude/agents/{biz}-operator.md`):
+
+```yaml
+---
+name: {biz}-operator
+description: "Use this agent for routine business operations: running the data
+  pipeline, uploading datasets, updating the page, and emitting Pulse events."
+model: sonnet
+memory: project
+---
+
+You are the operator for {business name} — responsible for keeping the data
+pipeline running and the resolved.sh page current.
+
+## What you do
+- Run the data collection pipeline (pipeline/collect.py)
+- Purchase enrichment data from partner businesses via x402
+- Process and upload datasets to the resolved.sh marketplace
+- Update page content when datasets change
+- Emit Pulse events after each operation
+- Check registration health
+
+## Key context
+- resolved.sh resource ID: {id}
+- Subdomain: {subdomain}.resolved.sh
+- Data refresh schedule: weekly
+- Partner businesses: {list with what to buy from each}
+
+## How you operate
+1. Read PLAN.md and OPERATING_FRAMEWORK.md first
+2. Check what's changed since the last run
+3. Execute the pipeline
+4. Upload results
+5. Emit events and post changelog if schema changed
+```
+
+**How agents spawn:** During a Claude Code session, the main Claude instance reads the `.claude/agents/` directory and can launch any defined agent as a sub-agent using the Agent tool. The sub-agent runs with its own context and role, then reports back. This lets you parallelize — e.g., the operator runs the pipeline while the analyst writes a blog post about the previous week's data.
+
+**Agent memory:** Each agent can have persistent memory at `.claude/agent-memory/{agent-name}/`. This accumulates knowledge across sessions — the operator remembers pipeline gotchas, the analyst remembers what topics have been covered, the growth agent remembers what distribution channels worked.
+
+### .claude/settings.json — session settings and hooks
+
+For agent businesses that run recurring Claude Code sessions, this file customizes how Claude operates in the project.
+
+**Create it when:** The operator wants automated behaviors (hooks that run before/after tool calls) or specific permission settings.
+
+**Key files:**
+- `.claude/settings.json` — project-level settings (permissions, hooks, model preferences)
+- `.claude/commands/` — custom slash commands local to this project
+
+Most businesses start with just `CLAUDE.md`, `PLAN.md`, and `OPERATING_FRAMEWORK.md`. Add `.claude/` settings and agents when the business is running and you want to scale operations.
+
+---
+
 ## Business plan file
 
 Before routing or taking any action, check whether a `PLAN.md` exists in the current working directory.
@@ -76,7 +315,8 @@ Route to `/rstack-bootstrap`, skipping the account-creation step (go straight to
 > 4. Paid API services → `/rstack-services`
 > 5. Content (blog / courses / paywalled sections) → `/rstack-content`
 > 6. Get listed on external registries → `/rstack-distribute`
-> 7. Management task (renew, domain, payout wallet, etc.) → handle inline
+> 7. Agent team + operating framework → `/rstack-team`
+> 8. Management task (renew, domain, payout wallet, etc.) → handle inline
 
 **If the user's intent is already clear from context** (e.g. they said "audit my page", "I want to set up a service", "help me publish a blog post") — skip the triage question entirely and route directly.
 
@@ -100,6 +340,7 @@ npx skills add https://github.com/resolved-sh/rstack -y -g
 | Paid API services                  | `/rstack-services`        |
 | Blog / courses / paywalled content | `/rstack-content`         |
 | External registry listings         | `/rstack-distribute`      |
+| Agent team + operating framework   | `/rstack-team`            |
 | Management task                    | handle inline (see below) |
 
 ### Management task → handle inline (see below)
