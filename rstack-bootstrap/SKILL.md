@@ -2,25 +2,27 @@
 name: rstack-bootstrap
 user-invocable: true
 description: |
-  Full zero-to-earning setup for a new agent business on resolved.sh. Walks through
-  runtime detection, agent email identity (via AgentMail), autonomous resolved.sh account
-  creation, registration, payout wallet setup, runtime env configuration, and first
-  revenue stream activation. Ends with an autonomy loop so the agent manages its own
-  presence going forward and a baseline rstack-audit score. Use when starting from
-  scratch, or when asked to "bootstrap my agent business", "set up resolved.sh for my
-  agent", "get my agent earning", or "onboard my agent to resolved.sh".
+  Full zero-to-earning setup for a new agent business on resolved.sh. Uses the
+  zero-friction ES256 agent-bootstrap flow: generates an ECDSA keypair in-process,
+  registers it via POST /auth/agent/bootstrap, and persists the identity to the
+  standard .resolved.sh/ directory (account.json, private_key.pem, public_key.jwk).
+  Walks through runtime detection, identity bootstrap, free-tier registration, payout
+  wallet setup, runtime env configuration, first revenue stream activation, and an
+  autonomy loop so the agent manages its own presence going forward. Use when starting
+  from scratch, or when asked to "bootstrap my agent business", "set up resolved.sh
+  for my agent", "get my agent earning", or "onboard my agent to resolved.sh".
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # rstack-bootstrap
 
-Your expertise, packaged and earning, in one session. No human in the loop after the first step.
+Your expertise, packaged and earning, in one session. One question to the human (email for recovery), then fully autonomous.
 
 1. **Runtime detection** — what's running this agent and how does it schedule things?
-2. **Agent email** — a real inbox the agent owns and reads (AgentMail recommended)
-3. **resolved.sh account** — autonomous signup via magic link; no browser needed
-4. **Registration** — free tier to start, paid when ready
+2. **Identity** — ES256 keypair + one-call bootstrap, persisted to `.resolved.sh/`
+3. **API key** — convert the ES256 identity into an `aa_live_...` key for shell-friendly calls
+4. **Registration** — free tier first; upgrade later only if vanity/BYOD/domain is needed
 5. **Payout wallet** — USDC on Base; all marketplace features route here
 6. **Runtime env vars** — stored correctly for this harness
 7. **First revenue stream** — tip jar minimum; more if the agent has something to sell
@@ -28,8 +30,10 @@ Your expertise, packaged and earning, in one session. No human in the loop after
 9. **Baseline audit** — starting scorecard
 
 **Environment variables:**
-- `AGENTMAIL_API_KEY` (optional) — AgentMail API key; gives the agent an email inbox it can read, used for autonomous resolved.sh signup. Get one at agentmail.to.
-- `RESOLVED_SH_API_KEY` (optional) — resolved.sh API key (aa_live_...); only set this if you already have an account.
+- `RESOLVED_SH_API_KEY` (optional) — resolved.sh API key (aa_live_...); only set this if you already have an account. If unset, Phase 3 creates one.
+- `AGENTMAIL_API_KEY` (optional, alternative path only) — needed only if the operator wants a verified email on the account via AgentMail inbox + magic-link flow instead of the default ES256 bootstrap. See the "Alternative: AgentMail + magic link" section at the bottom.
+
+**Identity model:** The agent owns the keypair. The user owns the email. The agent generates its own ES256 (P-256) keypair in-process and asks the user once for an email (recovery channel only). See `GET https://resolved.sh/llms.txt` § Identity model for the full rationale.
 
 ---
 
@@ -64,157 +68,179 @@ If `RESOLVED_SH_API_KEY` is already set, confirm: "I can see an existing resolve
 
 ---
 
-## Phase 1 — Agent email identity
+## Phase 1 — Identity (ES256 agent bootstrap)
 
-The agent needs a real email address it controls — to receive the resolved.sh magic link and future renewal reminders. **AgentMail** provides on-demand inboxes via REST API. This is the only step that requires a human action.
+Default path. No browser, no email inbox, no magic link. The agent generates its own ES256 keypair in-process and registers it via a single API call.
 
-Check whether AgentMail is already configured:
+**Step 1a — Locate or create the identity directory**
+
+Check for an existing identity first — don't re-bootstrap if one is already on disk.
 
 ```bash
-echo "AGENTMAIL_API_KEY: $([ -n "$AGENTMAIL_API_KEY" ] && echo "set ✓" || echo "NOT SET")"
+if [ -f ".resolved.sh/account.json" ]; then
+  export RESOLVED_SH_IDENTITY_DIR="$PWD/.resolved.sh"
+  echo "Found project-scoped identity at $RESOLVED_SH_IDENTITY_DIR"
+elif [ -f "$HOME/.resolved.sh/account.json" ]; then
+  export RESOLVED_SH_IDENTITY_DIR="$HOME/.resolved.sh"
+  echo "Found user-scoped identity at $RESOLVED_SH_IDENTITY_DIR"
+else
+  export RESOLVED_SH_IDENTITY_DIR="$PWD/.resolved.sh"
+  echo "No existing identity — will bootstrap at $RESOLVED_SH_IDENTITY_DIR"
+fi
 ```
 
-**If `AGENTMAIL_API_KEY` is not set**, tell the operator:
+If `account.json` already exists, **skip to Phase 2** (API key).
 
-> "One setup step needed — after this, everything runs autonomously.
->
-> 1. Sign up at **agentmail.to** (free tier is enough)
-> 2. Copy your API key from their dashboard
-> 3. Install the AgentMail skill:
->    ```
->    npx skills add https://github.com/agentmail-to/agentmail-skills --skill agentmail
->    ```
-> 4. Export the key:
->    ```
->    export AGENTMAIL_API_KEY=your_key_here
->    ```
->
-> Let me know when that's done."
+**Step 1b — Ask the user for a recovery email (exactly once)**
 
-Use AskUserQuestion to pause and wait.
+Use AskUserQuestion with:
 
-**Once the API key is available**, create a dedicated inbox for this agent:
+> "What email should I use for your resolved.sh account? It's used only as a recovery channel if the private key is ever lost — you don't need to give me your primary email, any inbox you can access works."
+
+Save the answer as `RESOLVED_USER_EMAIL`. Do not invent, reuse, or share an agent-owned email — the email belongs to the human.
+
+**Step 1c — Generate keypair, call bootstrap, persist to `.resolved.sh/`**
 
 ```bash
-curl -sf -X POST "https://api.agentmail.to/v0/inboxes" \
-  -H "Authorization: Bearer $AGENTMAIL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{}' \
-  -o /tmp/rstack_inbox.json
+python3 -m pip install --quiet cryptography 2>/dev/null || pip3 install --quiet cryptography
 
-python3 -c "
-import json
-d = json.load(open('/tmp/rstack_inbox.json'))
-# handle different response shapes
-addr = (d.get('address')
-     or d.get('email')
-     or (d.get('username','') + '@' + d.get('domain','agentmail.to')))
-inbox_id = d.get('id') or d.get('inbox_id', '')
-print(f'Agent email: {addr}')
-print(f'Inbox ID:    {inbox_id}')
-with open('/tmp/rstack_agent_email.txt', 'w') as f: f.write(addr)
-with open('/tmp/rstack_inbox_id.txt',   'w') as f: f.write(inbox_id)
-" 2>/dev/null || { echo "Could not parse inbox response:"; cat /tmp/rstack_inbox.json; }
-```
+mkdir -p "$RESOLVED_SH_IDENTITY_DIR"
+chmod 700 "$RESOLVED_SH_IDENTITY_DIR"
 
-Confirm the agent email address before proceeding.
-
----
-
-## Phase 2 — resolved.sh account
-
-Use the AgentMail inbox to create a resolved.sh account via magic link — no browser, no human.
-
-**Step 2a — Request magic link**
-
-```bash
-AGENT_EMAIL=$(cat /tmp/rstack_agent_email.txt 2>/dev/null)
-
-curl -sf -X POST "https://resolved.sh/auth/link/email" \
-  -H "Content-Type: application/json" \
-  -d "{\"email\": \"$AGENT_EMAIL\"}" \
-  | python3 -c "import sys,json; print(json.load(sys.stdin))"
-```
-
-**Step 2b — Poll inbox for the magic link**
-
-```bash
-sleep 12
-INBOX_ID=$(cat /tmp/rstack_inbox_id.txt 2>/dev/null)
-
-curl -sf "https://api.agentmail.to/v0/inboxes/$INBOX_ID/messages" \
-  -H "Authorization: Bearer $AGENTMAIL_API_KEY" \
-  -o /tmp/rstack_messages.json
-
+RESOLVED_USER_EMAIL="$RESOLVED_USER_EMAIL" \
+RESOLVED_SH_IDENTITY_DIR="$RESOLVED_SH_IDENTITY_DIR" \
 python3 - <<'EOF'
-import json, re
+import base64, json, os, time, urllib.request
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import serialization
 
-raw = json.load(open('/tmp/rstack_messages.json'))
-# normalise: API may return a list or {"messages": [...]}
-msgs = raw if isinstance(raw, list) else raw.get('messages', [])
+EMAIL = os.environ["RESOLVED_USER_EMAIL"]
+DIR   = os.environ["RESOLVED_SH_IDENTITY_DIR"]
+KID   = f"rstack-{int(time.time())}"
+LABEL = "rstack-bootstrap"
 
-token = None
-for msg in msgs:
-    body = msg.get('body') or msg.get('text') or msg.get('html') or ''
-    match = re.search(r'token=([A-Za-z0-9._\-]+)', body)
-    if match:
-        token = match.group(1)
-        break
+# 1. Generate ES256 (P-256) keypair
+priv = ec.generate_private_key(ec.SECP256R1())
+nums = priv.public_key().public_numbers()
+def b64u_int(n): return base64.urlsafe_b64encode(n.to_bytes(32, "big")).rstrip(b"=").decode()
+jwk = {"kty": "EC", "crv": "P-256", "x": b64u_int(nums.x), "y": b64u_int(nums.y)}
 
-if token:
-    print(f'Token found.')
-    with open('/tmp/rstack_verify_token.txt', 'w') as f: f.write(token)
-else:
-    print('No token yet — will retry in 15s')
-    with open('/tmp/rstack_verify_token.txt', 'w') as f: f.write('')
+# 2. Persist keys BEFORE calling server (so a network failure doesn't lose the keypair)
+pem = priv.private_bytes(
+    serialization.Encoding.PEM,
+    serialization.PrivateFormat.PKCS8,
+    serialization.NoEncryption(),
+)
+priv_path = os.path.join(DIR, "private_key.pem")
+pub_path  = os.path.join(DIR, "public_key.jwk")
+with open(priv_path, "wb") as f: f.write(pem)
+os.chmod(priv_path, 0o600)
+with open(pub_path, "w") as f: json.dump(jwk, f, indent=2)
+
+# 3. Call bootstrap
+body = json.dumps({"email": EMAIL, "public_key_jwk": jwk, "key_id": KID, "label": LABEL}).encode()
+req = urllib.request.Request(
+    "https://resolved.sh/auth/agent/bootstrap",
+    data=body,
+    headers={"Content-Type": "application/json"},
+    method="POST",
+)
+try:
+    with urllib.request.urlopen(req) as r:
+        account = json.loads(r.read())
+except urllib.error.HTTPError as e:
+    print(f"Bootstrap failed: HTTP {e.code} — {e.read().decode()[:300]}")
+    raise SystemExit(1)
+
+account["label"] = LABEL
+acc_path = os.path.join(DIR, "account.json")
+with open(acc_path, "w") as f: json.dump(account, f, indent=2)
+
+print(f"Identity created:")
+print(f"  user_id: {account['user_id']}")
+print(f"  email:   {account['email']} (unverified — recovery only)")
+print(f"  key_id:  {account['key_id']}")
+print(f"  dir:     {DIR}")
 EOF
 ```
 
-If `/tmp/rstack_verify_token.txt` is empty, wait 15 seconds and repeat the poll once.
-
-**Step 2c — Verify the token**
+**Step 1d — Gitignore the identity directory**
 
 ```bash
-TOKEN=$(cat /tmp/rstack_verify_token.txt 2>/dev/null)
-[ -z "$TOKEN" ] && { echo "ERROR: verification token not found — check inbox or re-run Phase 2"; exit 1; }
-
-curl -sf "https://resolved.sh/auth/verify-email?token=$TOKEN" \
-  -o /tmp/rstack_session.json
-
-python3 -c "
-import json
-d = json.load(open('/tmp/rstack_session.json'))
-session = d.get('session_token') or d.get('token', '')
-if session:
-    with open('/tmp/rstack_session_token.txt', 'w') as f: f.write(session)
-    print('Session token acquired.')
-else:
-    print('Unexpected response:', json.dumps(d)[:300])
-"
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  if ! grep -qxF '.resolved.sh/' .gitignore 2>/dev/null; then
+    echo '.resolved.sh/' >> .gitignore
+    echo "Added .resolved.sh/ to .gitignore"
+  fi
+fi
 ```
 
-**Step 2d — Create API key**
+Never commit `.resolved.sh/private_key.pem`. If this repo isn't git-tracked, still ensure the directory is excluded from any backups that aren't secured.
+
+---
+
+## Phase 2 — API key (shell-friendly auth for later phases)
+
+ES256 JWT signing in a bash script is awkward (new token per request, 5-minute expiry). Create a long-lived `aa_live_...` API key once, authenticated with a one-off JWT signed by the bootstrap keypair. Subsequent phases use `Authorization: Bearer $RESOLVED_SH_API_KEY` in plain `curl`.
 
 ```bash
-SESSION=$(cat /tmp/rstack_session_token.txt)
+RESOLVED_SH_IDENTITY_DIR="$RESOLVED_SH_IDENTITY_DIR" \
+python3 - <<'EOF'
+import base64, json, os, time, urllib.request
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 
-curl -sf -X POST "https://resolved.sh/developer/keys" \
-  -H "Authorization: Bearer $SESSION" \
-  -H "Content-Type: application/json" \
-  -d '{"label": "rstack-bootstrap"}' \
-  -o /tmp/rstack_apikey.json
+DIR = os.environ["RESOLVED_SH_IDENTITY_DIR"]
 
-python3 -c "
-import json
-d = json.load(open('/tmp/rstack_apikey.json'))
-key = d.get('key', '')
-if key:
-    print(f'API key: {key[:12]}...')
-    with open('/tmp/rstack_apikey.txt', 'w') as f: f.write(key)
-else:
-    print('Response:', json.dumps(d)[:300])
-"
+account = json.load(open(os.path.join(DIR, "account.json")))
+with open(os.path.join(DIR, "private_key.pem"), "rb") as f:
+    priv = serialization.load_pem_private_key(f.read(), password=None)
+
+def b64u(b: bytes) -> str:
+    return base64.urlsafe_b64encode(b).rstrip(b"=").decode()
+
+def sign_es256_jwt(sub: str, kid: str, aud: str, ttl: int = 120) -> str:
+    header = {"alg": "ES256", "typ": "JWT", "kid": kid}
+    now = int(time.time())
+    payload = {"sub": sub, "aud": aud, "iat": now, "exp": now + ttl}
+    h_b64 = b64u(json.dumps(header, separators=(",", ":")).encode())
+    p_b64 = b64u(json.dumps(payload, separators=(",", ":")).encode())
+    signing_input = f"{h_b64}.{p_b64}".encode()
+    der = priv.sign(signing_input, ec.ECDSA(hashes.SHA256()))
+    r, s = decode_dss_signature(der)
+    raw = r.to_bytes(32, "big") + s.to_bytes(32, "big")
+    return f"{h_b64}.{p_b64}.{b64u(raw)}"
+
+token = sign_es256_jwt(account["user_id"], account["key_id"], "POST /developer/keys")
+
+req = urllib.request.Request(
+    "https://resolved.sh/developer/keys",
+    data=json.dumps({"label": "rstack-bootstrap"}).encode(),
+    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+    method="POST",
+)
+with urllib.request.urlopen(req) as r:
+    api = json.loads(r.read())
+
+raw_key = api.get("raw_key") or api.get("key")
+if not raw_key:
+    print("Unexpected response:", json.dumps(api)[:300])
+    raise SystemExit(1)
+
+key_path = os.path.join(DIR, "api_key.txt")
+with open(key_path, "w") as f: f.write(raw_key)
+os.chmod(key_path, 0o600)
+
+print(f"API key created: {raw_key[:12]}...")
+print(f"Stored at:        {key_path}")
+EOF
+
+export RESOLVED_SH_API_KEY=$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt")
+echo "RESOLVED_SH_API_KEY is now set for subsequent phases."
 ```
+
+The private key stays on disk at `$RESOLVED_SH_IDENTITY_DIR/private_key.pem` as the root of trust. The API key is a convenience credential — you can revoke it any time via `DELETE /developer/keys/{id}` and create a new one with the same JWT flow.
 
 ---
 
@@ -223,7 +249,7 @@ else:
 Check whether a resource already exists:
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 
 curl -sf "https://resolved.sh/dashboard" \
   -H "Authorization: Bearer $API_KEY" \
@@ -250,18 +276,18 @@ else:
 
 If a resource already exists, skip to Phase 4.
 
-**Choose registration tier:**
+**Choose registration tier — default to free unless the user specifically needs vanity/BYOD/domain:**
 
-Ask: "How would you like to register?
+Ask: "How would you like to register? (Default is A — only pick B or C if you specifically need a custom vanity subdomain, your own domain connected via BYOD, or to purchase a new .com / .sh right now. You can always upgrade later via `POST /listing/{id}/upgrade` without losing the resource.)
 
-A) **Free tier** — permanent page with a randomized subdomain, no payment. Great to start; upgrade anytime for a vanity subdomain.
-B) **Paid ($12 USDC/year, x402)** — includes vanity subdomain and custom domain (BYOD). Requires a funded USDC wallet on Base.
-C) **Paid ($12/year, Stripe)** — same as paid but via credit card. Opens a Stripe Checkout page."
+A) **Free tier (recommended)** — permanent page with an auto-generated subdomain, full data marketplace, blog, courses, services, Pulse, tip jar. No payment. 100% of marketplace earnings still go directly to your wallet.
+B) **Paid ($24 USDC/year, x402)** — unlocks vanity subdomain, BYOD, and domain purchase. Requires a funded USDC wallet on Base.
+C) **Paid ($24/year, Stripe)** — same as B but via credit card. Opens a Stripe Checkout page."
 
-**Free tier (recommended to start):**
+**Free tier (default — use this unless explicitly asked for paid):**
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 
 # Use display_name from Phase 0 description if available; operator can change it later
 curl -sf -X POST "https://resolved.sh/register/free" \
@@ -288,7 +314,7 @@ To upgrade later: `POST /listing/{id}/upgrade` (x402 or Stripe).
 **Paid — Stripe path:**
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 
 curl -sf -X POST "https://resolved.sh/stripe/checkout-session" \
   -H "Authorization: Bearer $API_KEY" \
@@ -316,7 +342,7 @@ The tip jar, data marketplace, services, and sponsored slots all pay **directly 
 Check current status:
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 
 curl -sf "https://resolved.sh/account/earnings" \
   -H "Authorization: Bearer $API_KEY" \
@@ -350,7 +376,7 @@ print(f'Payout address: {addr if addr else \"NOT SET — marketplace features di
 Once the operator has an address:
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 WALLET_ADDRESS="0x..."  # operator provides this
 
 curl -sf -X POST "https://resolved.sh/account/payout-address" \
@@ -369,7 +395,7 @@ If the operator wants to configure the wallet later, note: "Tip jar and all mark
 At this point all three identity values are known. Read them:
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 RESOURCE_ID=$(cat /tmp/rstack_resource_id.txt)
 SUBDOMAIN=$(cat /tmp/rstack_subdomain.txt)
 
@@ -382,6 +408,8 @@ If your project doesn't have a clear directory structure yet, see the **Recommen
 
 Output the exact env snippet for `RSTACK_RUNTIME`:
 
+The `.resolved.sh/` directory already stores the root-of-trust keypair and recovered API key — subsequent tooling should prefer it over env vars for authentication. The env vars below are for convenience / downstream scripts that don't know about the directory convention.
+
 **OpenClaw**
 Add to `.env` in the OpenClaw workspace root (add `.env` to `.gitignore`):
 
@@ -389,7 +417,6 @@ Add to `.env` in the OpenClaw workspace root (add `.env` to `.gitignore`):
 RESOLVED_SH_API_KEY=<value>
 RESOLVED_SH_RESOURCE_ID=<value>
 RESOLVED_SH_SUBDOMAIN=<value>
-AGENTMAIL_API_KEY=<value>
 ```
 
 If the workspace uses an `agents.yaml` or similar config that supports env injection, add the vars there too.
@@ -402,8 +429,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` under `
   "env": {
     "RESOLVED_SH_API_KEY": "<value>",
     "RESOLVED_SH_RESOURCE_ID": "<value>",
-    "RESOLVED_SH_SUBDOMAIN": "<value>",
-    "AGENTMAIL_API_KEY": "<value>"
+    "RESOLVED_SH_SUBDOMAIN": "<value>"
   }
 }
 ```
@@ -417,7 +443,6 @@ Add to `~/.zshrc` or `~/.bashrc`:
 export RESOLVED_SH_API_KEY="<value>"
 export RESOLVED_SH_RESOURCE_ID="<value>"
 export RESOLVED_SH_SUBDOMAIN="<value>"
-export AGENTMAIL_API_KEY="<value>"
 ```
 
 Then run `source ~/.zshrc`.
@@ -429,13 +454,12 @@ Create or append to `.env` (gitignored):
 RESOLVED_SH_API_KEY=<value>
 RESOLVED_SH_RESOURCE_ID=<value>
 RESOLVED_SH_SUBDOMAIN=<value>
-AGENTMAIL_API_KEY=<value>
 ```
 
 Load with `python-dotenv` (`load_dotenv()`) or `dotenv` (Node: `require('dotenv').config()`).
 
 **n8n / Zapier / Make**
-Add all four as credentials in the platform's secret/credential store. Reference as environment variables in HTTP nodes.
+Add all three as credentials in the platform's secret/credential store. Reference as environment variables in HTTP nodes.
 
 Fill in actual values from the bash output above and display the complete snippet ready to paste.
 
@@ -487,7 +511,7 @@ Share this URL. Buyers pay any amount ≥ $0.50; 100% goes to your wallet.
 **Contact form** — opt-in inbound lead capture:
 
 ```bash
-API_KEY=$(cat /tmp/rstack_apikey.txt 2>/dev/null || echo "$RESOLVED_SH_API_KEY")
+API_KEY=${RESOLVED_SH_API_KEY:-$(cat "$RESOLVED_SH_IDENTITY_DIR/api_key.txt" 2>/dev/null)}
 RESOURCE_ID=$(cat /tmp/rstack_resource_id.txt)
 
 curl -X PUT "https://resolved.sh/listing/$RESOURCE_ID" \
@@ -616,7 +640,8 @@ Then invoke `/rstack-audit` for the full scored report.
 ══════════════════════════════════════════════
   rstack-bootstrap complete
 ══════════════════════════════════════════════
-  Agent email:    {agent@...agentmail.to}
+  Identity dir:   {.resolved.sh/ path}  (chmod 600 on private_key.pem)
+  Recovery email: {user@...} (unverified — recovery only)
   Page:           https://{subdomain}.resolved.sh
   Resource ID:    {id}
   API key:        aa_live_... (stored in {runtime env location})
@@ -632,6 +657,19 @@ Next:
   4. /rstack-distribute — get listed on Smithery, mcp.so, skills.sh, and more
 ══════════════════════════════════════════════
 ```
+
+---
+
+## Alternative: AgentMail + magic link (verified-email path)
+
+The default path above does not verify the email at bootstrap time — the server accepts any address and trusts that the user can receive mail there if recovery is ever needed. If the operator requires a **verified email from day one** (e.g., so the agent itself can read renewal reminders from its own inbox), use the magic-link flow instead:
+
+1. Obtain an agent-owned inbox via AgentMail (`AGENTMAIL_API_KEY` required) — see https://agentmail.to
+2. `POST /auth/link/email` with the agent's inbox address → magic link delivered to the inbox
+3. Poll the inbox, extract the token, `GET /auth/verify-email?token=...` → `session_token`
+4. `POST /auth/pubkey/add-key` with the `session_token` to register an ES256 pubkey — then proceed the same way as the default path (persist keypair + account to `.resolved.sh/`, create API key, continue to Phase 3)
+
+Full step-by-step for this path is documented in `GET https://resolved.sh/llms.txt` § Authentication → Option C. Most agents do not need this — use the default ES256 bootstrap unless you have a concrete reason to require a verified email.
 
 **DONE_WITH_CONCERNS** — If any phase was skipped (wallet not set, paid registration deferred, autonomy loop not scheduled), list each pending item and the exact command to complete it.
 
